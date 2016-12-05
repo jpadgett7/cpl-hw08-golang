@@ -57,6 +57,24 @@ func parseCLIArgs() string {
 //
 // If unmarshaling is successful, the coordinate is returned as a latlong.LatLonger.
 func unmarshalLatLonger(s string) (l latlong.LatLonger, err error) {
+	if e := l.UnmarshalJSON([]byte(s)); e == nil {
+		err = nil
+		return
+	} else {
+		l, err = nvector.ToCoordinate(l)
+		if err == nil {
+			if e := l.UnmarshalJSON([]byte(s)); e == nil {
+				err = nil
+				return
+			} else {
+				l, err = utm.ToCoordinate(l)
+				
+			}
+		} else {
+			return
+		}
+	}
+
 	return nil, nil
 }
 
@@ -91,9 +109,19 @@ func computeDistances(trips chan trip, totals chan total) {
 
 func main() {
 	fname := parseCLIArgs()
+	trips := make(chan trip)
+	totals := make(chan total)
 
 	log.SetFlags(0) // Dial back the log output
 	if debug {
 		log.Printf("Starting program %s", os.Args[0])
 	}
+	if fname != nil {
+		go loadTrips(fname, trips)
+		go computeDistances(trips, totals)
+	} else {
+		log.Println("Need a file to process!")
+	}
+
+	return
 }

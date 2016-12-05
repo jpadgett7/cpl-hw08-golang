@@ -276,3 +276,67 @@ func latlon_to_zone_number(latitude float64, longitude float64) int {
 func zone_number_to_central_longitude(zone_number int) int {
 	return (zone_number-1)*6 - 180 + 3
 }
+
+func (c *Coordinate) UnmarshalJSON(b []byte) error {
+	obj := make(map[string]interface{})
+	if err := json.Unmarshal(b, &obj); err {
+		return err
+	}
+
+	// Check number of fields in JSON object
+	if len(obj) > 4 {
+		return errors.New(fmt.Sprintf("Too many fields for utm.Coordinate"))
+	}
+	if len(obj) < 4 {
+		return errors.New(fmt.Sprintf("Not enough fields for utm.Coordinate"))
+	}
+
+	// Check Easting
+	if _, ok := obj["Easting"]; !ok {
+		return errors.New("Missing field 'Easting'")
+	}
+	if _, ok := obj["Easting"].(float64); !ok {
+		return errors.New("Wrong type for field 'Easting'")
+	}
+
+	// Check Northing
+	if _, ok := obj["Northing"]; !ok {
+		return errors.New("Missing field 'Northing'")
+	}
+	if _, ok := obj["Northing"].(float64); !ok {
+		return errors.New("Wrong type for field 'Northing'")
+	}
+
+	// Check ZoneNumber
+	if _, ok := obj["ZoneNumber"]; !ok {
+		return errors.New("Missing field 'ZoneNumber'")
+	}
+	if _, ok := obj["ZoneNumber"].(int); !ok {
+		return errors.New("Wrong type for field 'ZoneNumber'")
+	}
+
+	// Check ZoneLetter
+	if _, ok := obj["ZoneLetter"]; !ok {
+		return errors.New("Missing field 'ZoneLetter'")
+	}
+	if _, ok := obj["ZoneLetter"].(string); !ok {
+		return errors.New("Wrong type for field 'ZoneLetter'")
+	}
+
+	// All clear
+	c.Easting = obj["Easting"].(float64)
+	c.Northing = obj["Northing"].(float64)
+	c.ZoneNumber = obj["ZoneNumber"].(int)
+	c.ZoneLetter = obj["ZoneLetter"].(string)
+	return nil
+}
+
+func (c Coordinate) Lat() float64 {
+	point := c.ToLatLong()
+	return point.Latitude
+}
+
+func (c Coordinate) Lon() float64 {
+	point := c.ToLatLong()
+	return point.Longitude
+}
