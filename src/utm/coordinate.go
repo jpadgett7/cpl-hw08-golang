@@ -279,7 +279,7 @@ func zone_number_to_central_longitude(zone_number int) int {
 
 func (c *Coordinate) UnmarshalJSON(b []byte) error {
 	obj := make(map[string]interface{})
-	if err := json.Unmarshal(b, &obj); err {
+	if err := json.Unmarshal(b, &obj); err != nil {
 		return err
 	}
 
@@ -311,8 +311,10 @@ func (c *Coordinate) UnmarshalJSON(b []byte) error {
 	if _, ok := obj["ZoneNumber"]; !ok {
 		return errors.New("Missing field 'ZoneNumber'")
 	}
-	if _, ok := obj["ZoneNumber"].(int); !ok {
-		return errors.New("Wrong type for field 'ZoneNumber'")
+	if i, ok := obj["ZoneNumber"].(int); !ok {
+		if i - int(i) != 0 {
+			return errors.New("Wrong type for field 'ZoneNumber'")
+		}
 	}
 
 	// Check ZoneLetter
@@ -326,17 +328,28 @@ func (c *Coordinate) UnmarshalJSON(b []byte) error {
 	// All clear
 	c.Easting = obj["Easting"].(float64)
 	c.Northing = obj["Northing"].(float64)
-	c.ZoneNumber = obj["ZoneNumber"].(int)
+	if _, ok := obj["ZoneNumber"].(int); !ok {
+		tmpZNum := obj["ZoneNumber"].(float64)
+		c.ZoneNumber = int(tmpZNum)
+	} else {
+		c.ZoneNumber = obj["ZoneNumber"].(int)
+	}
 	c.ZoneLetter = obj["ZoneLetter"].(string)
 	return nil
 }
 
 func (c Coordinate) Lat() float64 {
-	point := c.ToLatLong()
-	return point.Latitude
+	point, err := c.ToLatLong()
+	if err == nil {
+		return point.Latitude
+	}
+	return 0
 }
 
 func (c Coordinate) Lon() float64 {
-	point := c.ToLatLong()
-	return point.Longitude
+	point,err  := c.ToLatLong()
+	if err == nil {
+		return point.Longitude
+	}
+	return 0
 }

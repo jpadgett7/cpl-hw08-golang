@@ -10,5 +10,5 @@ type total struct {
 }
 
 func (t total) String() string {
-	return fmt.Sprintf("Traveler %d traveled %f miles", t.id, t.distance)
+	return fmt.Sprintf("Traveler %d traveled %.2f miles", t.id, t.distance)
 }

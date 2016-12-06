@@ -27,15 +27,15 @@ type Coordinate struct {
 
 func (c *Coordinate) UnmarshalJSON(b []byte) error {
 	obj := make(map[string]interface{})
-	if err := json.Unmarshal(b, &obj); err {
+	if err := json.Unmarshal(b, &obj); err != nil {
 		return err
 	}
 
 	// Check number of fields in JSON object
-	if len(obj) > 4 {
+	if len(obj) > 2 {
 		return errors.New(fmt.Sprintf("Too many fields for latlong.Coordinate"))
 	}
-	if len(obj) < 4 {
+	if len(obj) < 2 {
 		return errors.New(fmt.Sprintf("Not enough fields for latlong.Coordinate"))
 	}
 
