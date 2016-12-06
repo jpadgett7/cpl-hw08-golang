@@ -138,8 +138,8 @@ func loadTrips(fname string, trips chan trip) {
 			if err == nil {
 				tmpCoords = append(tmpCoords, myCoord)
 			} else {
-						fmt.Println(err)
-						os.Exit(1)
+				fmt.Println(err)
+				os.Exit(1)
 			}
 		} else {
 			// Sscanf failed. Shouldn't happen, hopefully

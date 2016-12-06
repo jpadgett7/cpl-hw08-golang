@@ -312,7 +312,7 @@ func (c *Coordinate) UnmarshalJSON(b []byte) error {
 		return errors.New("Missing field 'ZoneNumber'")
 	}
 	if i, ok := obj["ZoneNumber"].(int); !ok {
-		if i - int(i) != 0 {
+		if i-int(i) != 0 {
 			return errors.New("Wrong type for field 'ZoneNumber'")
 		}
 	}
@@ -347,7 +347,7 @@ func (c Coordinate) Lat() float64 {
 }
 
 func (c Coordinate) Lon() float64 {
-	point,err  := c.ToLatLong()
+	point, err := c.ToLatLong()
 	if err == nil {
 		return point.Longitude
 	}
